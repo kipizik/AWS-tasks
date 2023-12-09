@@ -7,7 +7,7 @@ using FluentAssertions.Execution;
 using Newtonsoft.Json;
 using System.Web;
 
-namespace Aws.Iam.Task2.Tests;
+namespace Aws.Iam.Task2.Tests.Tests;
 
 public class IamValidationTests
 {
