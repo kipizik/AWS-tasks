@@ -37,11 +37,12 @@ public class Tests
         };
         var describeInstanceTypesResponse = await ec2Client.DescribeInstancesAsync(describeInstancesRequest);
         IEnumerable<Instance> ec2Instances = describeInstanceTypesResponse.Reservations.SelectMany(r => r.Instances);
+        
         // Assert
-        ec2Instances.Count().Should().Be(2, $"2 EC2 instances of type {expectedInstanceType} should be deployed.");
-
         using (new AssertionScope())
         {
+            ec2Instances.Count().Should().Be(2, $"2 EC2 instances of type {expectedInstanceType} should be deployed.");
+
             foreach (var instance in ec2Instances)
             {
                 var describeVolumesRequest = new DescribeVolumesRequest
