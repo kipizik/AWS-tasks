@@ -1,6 +1,6 @@
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
-using Aws.Iam.Task2.Tests.Helpers;
+using Aws.Common.Helpers;
 using Aws.Iam.Task2.Tests.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;

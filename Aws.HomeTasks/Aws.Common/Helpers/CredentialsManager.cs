@@ -1,4 +1,4 @@
-﻿namespace Aws.Iam.Task2.Tests.Helpers;
+﻿namespace Aws.Common.Helpers;
 
 public static class CredentialsManager
 {
@@ -14,7 +14,7 @@ public static class CredentialsManager
 
     private static string GetEnvVariableValue(string name)
     {
-        return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User) 
+        return Environment.GetEnvironmentVariable(name, EnvironmentVariableTarget.User)
             ?? throw new Exception($"Value for the env variable was not found. Name is {name}");
     }
 }

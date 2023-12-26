@@ -1,6 +1,6 @@
 using Amazon.EC2;
 using Amazon.EC2.Model;
-using Aws.Iam.Task2.Tests.Helpers;
+using Aws.Common.Helpers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Newtonsoft.Json;
