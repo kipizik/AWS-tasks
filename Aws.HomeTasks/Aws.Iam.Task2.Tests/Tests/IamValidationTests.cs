@@ -1,11 +1,9 @@
 using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Aws.Common.Helpers;
-using Aws.Iam.Task2.Tests.Models;
+using Aws.Common.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using Newtonsoft.Json;
-using System.Web;
 
 namespace Aws.Iam.Task2.Tests.Tests;
 
@@ -26,13 +24,13 @@ public class IamValidationTests
     [Test]
     public async Task Validate_Iam_Policies()
     {
-        var expectedPoliciesByName = new Dictionary<string, PolicyModel>
+        var expectedPoliciesByName = new Dictionary<string, PolicyVersionModel>
         {
-            [FullAccessPolicyEC2] = new PolicyModel
+            [FullAccessPolicyEC2] = new PolicyVersionModel
             {
                 Statement = new[]
                 {
-                    new Models.Statement
+                    new Common.Models.Statement
                     {
                         Action = "ec2:*",
                         Effect = "Allow",
@@ -40,11 +38,11 @@ public class IamValidationTests
                     }
                 }
             },
-            [FullAccessPolicyS3] = new PolicyModel
+            [FullAccessPolicyS3] = new PolicyVersionModel
             {
                 Statement = new[]
                 {
-                    new Models.Statement
+                    new Common.Models.Statement
                     {
                         Action = "s3:*",
                         Effect = "Allow",
@@ -52,11 +50,11 @@ public class IamValidationTests
                     }
                 }
             },
-            [ReadAccessPolicyS3] = new PolicyModel
+            [ReadAccessPolicyS3] = new PolicyVersionModel
             {
                 Statement = new[]
                 {
-                    new Models.Statement
+                    new Common.Models.Statement
                     {
                         Action = new Newtonsoft.Json.Linq.JArray  { "s3:Describe*", "s3:Get*", "s3:List*" },
                         Effect = "Allow",
@@ -68,12 +66,12 @@ public class IamValidationTests
 
         var listPoliciesResponse = await iamClient.ListPoliciesAsync(new ListPoliciesRequest { PolicyUsageFilter = PolicyUsageType.PermissionsPolicy });
 
-        var returnedPoliciesByArn = new Dictionary<string, PolicyModel>();
+        var returnedPoliciesByArn = new Dictionary<string, PolicyVersionModel>();
         foreach (var policy in listPoliciesResponse.Policies)
         {
             if (expectedPoliciesByName.ContainsKey(policy.PolicyName))
             {
-                returnedPoliciesByArn.Add(policy.Arn, new PolicyModel());
+                returnedPoliciesByArn.Add(policy.Arn, new PolicyVersionModel());
             }
         }
 
@@ -84,8 +82,8 @@ public class IamValidationTests
                 PolicyArn = policy.Key,
                 VersionId = "v1"
             });
-            var policyModel = JsonConvert.DeserializeObject<PolicyModel>(GetPolicyDocumentAsJson(policyVersionResponse.PolicyVersion));
-            returnedPoliciesByArn[policy.Key] = policyModel;
+            var policyModel = PolicyDocumentHelper.GetPolicyVersionDocument(policyVersionResponse.PolicyVersion.Document);
+            returnedPoliciesByArn[policy.Key] = policyModel!;
         }
 
         returnedPoliciesByArn.Values.Should().BeEquivalentTo(expectedPoliciesByName.Values);
@@ -155,10 +153,5 @@ public class IamValidationTests
                 getGroupResponse.Users.Single().UserName.Should().Be(pair.Key);
             }
         }
-    }
-
-    private static string GetPolicyDocumentAsJson(PolicyVersion policyVersion)
-    {
-        return HttpUtility.UrlDecode(policyVersion.Document);
     }
 }
