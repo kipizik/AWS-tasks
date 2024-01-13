@@ -1,11 +1,11 @@
 ﻿using Newtonsoft.Json;
 
-namespace AWs.S3.Task5.Tests.Models;
+namespace Aws.Common.Models;
 
-internal class ImageModel
+public class ImageModel
 {
     [JsonProperty("id")]
-    public int Id { get; set; }
+    public long Id { get; set; }
 
     [JsonProperty("last_modified")]
     public string LastModified { get; set; }
@@ -14,7 +14,7 @@ internal class ImageModel
     public string ObjectKey { get; set; }
 
     [JsonProperty("object_size")]
-    public int ObjectSize { get; set; }
+    public long ObjectSize { get; set; }
 
     [JsonProperty("object_type")]
     public string ObjectType { get; set; }

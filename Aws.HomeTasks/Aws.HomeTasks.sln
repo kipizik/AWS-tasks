@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Common", "Aws.Common\Aw
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Ec2.Task3.Tests", "Aws.Ec2.Task3.Tests\Aws.Ec2.Task3.Tests.csproj", "{A5F2378E-3CE9-4598-8E73-5BB576A011B7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aws.Vpc.Task4.Tests", "Aws.Vpc.Task4.Tests\Aws.Vpc.Task4.Tests.csproj", "{1EFEBE61-C3B5-4B5D-A02A-97E5B17CE18A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Vpc.Task4.Tests", "Aws.Vpc.Task4.Tests\Aws.Vpc.Task4.Tests.csproj", "{1EFEBE61-C3B5-4B5D-A02A-97E5B17CE18A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AWs.S3.Task5.Tests", "AWs.S3.Task5.Tests\AWs.S3.Task5.Tests.csproj", "{09B3F395-74C9-46DD-B45D-C2B13B9354DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWs.S3.Task5.Tests", "AWs.S3.Task5.Tests\AWs.S3.Task5.Tests.csproj", "{09B3F395-74C9-46DD-B45D-C2B13B9354DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aws.Rds.Task6.Tests", "Aws.Rds.Task6.Tests\Aws.Rds.Task6.Tests.csproj", "{115311E7-523C-4D3D-867F-BB78DFB70417}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{09B3F395-74C9-46DD-B45D-C2B13B9354DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{09B3F395-74C9-46DD-B45D-C2B13B9354DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{09B3F395-74C9-46DD-B45D-C2B13B9354DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{115311E7-523C-4D3D-867F-BB78DFB70417}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{115311E7-523C-4D3D-867F-BB78DFB70417}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{115311E7-523C-4D3D-867F-BB78DFB70417}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{115311E7-523C-4D3D-867F-BB78DFB70417}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -26,16 +26,4 @@
     <ProjectReference Include="..\Aws.Common\Aws.Common.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="Images\arsenal_fc.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Images\liverpool_fc.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Images\real_fc.jpg">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

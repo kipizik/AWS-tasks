@@ -2,14 +2,11 @@
 using Amazon.EC2.Model;
 using Amazon.S3;
 using Amazon.S3.Model;
-using AWs.S3.Task5.Tests.Models;
+using Aws.Common.Models;
 using FluentAssertions;
 using Newtonsoft.Json;
 using System.Net;
-using System.Net.Http;
 using System.Reflection;
-using System.Text;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace AWs.S3.Task5.Tests;
 
@@ -20,7 +17,7 @@ internal class FunctionalTests
     private HttpClient imageApiClient;
     private AmazonS3Client s3Client;
     private readonly List<int> createdS3ObjectIds = new();
-    private readonly string projectImageDirectory = $"{Assembly.GetExecutingAssembly().Location}\\..\\..\\..\\..\\Images";
+    private readonly string projectImageDirectory = $"{Assembly.GetExecutingAssembly().Location}\\..\\Images";
     private const string bucketNamePart = "cloudximage-imagestorebucket";
 
     /*
