@@ -13,7 +13,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Vpc.Task4.Tests", "Aws.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWs.S3.Task5.Tests", "AWs.S3.Task5.Tests\AWs.S3.Task5.Tests.csproj", "{09B3F395-74C9-46DD-B45D-C2B13B9354DF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aws.Rds.Task6.Tests", "Aws.Rds.Task6.Tests\Aws.Rds.Task6.Tests.csproj", "{115311E7-523C-4D3D-867F-BB78DFB70417}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Rds.Task6.Tests", "Aws.Rds.Task6.Tests\Aws.Rds.Task6.Tests.csproj", "{115311E7-523C-4D3D-867F-BB78DFB70417}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aws.Sns.Task7.Tests", "Aws.Sns.Task7.Tests\Aws.Sns.Task7.Tests.csproj", "{8932FC1D-9920-4F5C-9F56-E487E14038EA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{115311E7-523C-4D3D-867F-BB78DFB70417}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{115311E7-523C-4D3D-867F-BB78DFB70417}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{115311E7-523C-4D3D-867F-BB78DFB70417}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

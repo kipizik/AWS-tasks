@@ -4,7 +4,7 @@ using Amazon.IdentityManagement;
 using Amazon.IdentityManagement.Model;
 using Amazon.S3;
 using Amazon.S3.Model;
-using Aws.Common.Helpers;
+using Aws.Common.Extensions;
 using Aws.Common.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
@@ -15,9 +15,9 @@ namespace AWs.S3.Task5.Tests;
 
 public class S3DeploymentValidationTests
 {
-    private IAmazonEC2 ec2Client;
+    private AmazonEC2Client ec2Client;
     private AmazonS3Client s3Client;
-    private IAmazonIdentityManagementService iamClient;
+    private AmazonIdentityManagementServiceClient iamClient;
 
     [SetUp]
     public void Setup()
@@ -61,7 +61,7 @@ public class S3DeploymentValidationTests
         
         var s3BucketArns = cloudxBuckets.Select(b => $"arn:aws:s3:::{b.BucketName}");
         InstanceProfile instanceProfile = await GetEc2InstanceProfileByTag("cloudx");
-        List<PolicyVersionModel> policyDocuments = await GetPolicyDocumentsByIamRole(instanceProfile.Roles.Single().RoleName);
+        List<PolicyVersionModel> policyDocuments = await iamClient.GetPolicyDocumentsByIamRoleAsync(instanceProfile.Roles.Single().RoleName);
         var s3AccessPolicies = policyDocuments.Where(d =>
             d.Statement.Any(s =>
                 s.Effect == "Allow"
@@ -109,7 +109,7 @@ public class S3DeploymentValidationTests
                 .ContainSingle(r => r.ServerSideEncryptionByDefault.ServerSideEncryptionAlgorithm == ServerSideEncryptionMethod.AES256);
             // Check versioning
             getBucketVersioningResponse.VersioningConfig.Status.Should().Be(VersionStatus.Off);
-            // Check public access is disbaled
+            // Check public access is disabled
             getPublicAccessBlockResponse.PublicAccessBlockConfiguration.RestrictPublicBuckets.Should().BeTrue();
             getPublicAccessBlockResponse.PublicAccessBlockConfiguration.IgnorePublicAcls.Should().BeTrue(); 
         }
@@ -117,43 +117,12 @@ public class S3DeploymentValidationTests
 
     private async Task<InstanceProfile> GetEc2InstanceProfileByTag(string tagName)
     {
-        var describeInstancesResponse = await ec2Client.DescribeInstancesAsync(
-            new DescribeInstancesRequest
-            {
-                Filters = new List<Amazon.EC2.Model.Filter>
-                {
-                            new()
-                            {
-                                Name = "tag-key",
-                                Values = new List<string> { tagName }
-                            }
-                }
-            });
-        var instance = describeInstancesResponse.Reservations.Single().Instances.Single();
-        var instanceProfileName = instance.IamInstanceProfile.Arn.Split("profile/")[1];
+        var instanceProfileName = await ec2Client.GetEc2InstanceProfileNameByTag(tagName);
         var instanceProfilesResponse = await iamClient.GetInstanceProfileAsync(
             new GetInstanceProfileRequest
             {
                 InstanceProfileName = instanceProfileName
             });
         return instanceProfilesResponse.InstanceProfile;
-    }
-
-    private async Task<List<PolicyVersionModel>> GetPolicyDocumentsByIamRole(string roleName)
-    {
-        var listRolePoliciesResponse = await iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
-        {
-            RoleName = roleName
-        });
-        var policyDocuments = new List<PolicyVersionModel>();
-        foreach (var policy in listRolePoliciesResponse.AttachedPolicies)
-        {
-            var getPolicyResponse = await iamClient.GetPolicyAsync(new GetPolicyRequest { PolicyArn = policy.PolicyArn });
-            var policyVersionResponse = await iamClient.GetPolicyVersionAsync(new GetPolicyVersionRequest { PolicyArn = policy.PolicyArn, VersionId = getPolicyResponse.Policy.DefaultVersionId });
-            var policyVersionDocument = PolicyDocumentHelper.GetPolicyVersionDocument(policyVersionResponse.PolicyVersion.Document);
-            policyDocuments.Add(policyVersionDocument!);
-        }
-
-        return policyDocuments;
     }
 }

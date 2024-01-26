@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
@@ -7,7 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.300.20" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.58" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+	<PackageReference Include="AWSSDK.EC2" Version="3.7.309.4" />
+	<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

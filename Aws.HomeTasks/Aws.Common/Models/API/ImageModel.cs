@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace Aws.Common.Models;
+namespace Aws.Common.Models.API;
 
 public class ImageModel
 {
