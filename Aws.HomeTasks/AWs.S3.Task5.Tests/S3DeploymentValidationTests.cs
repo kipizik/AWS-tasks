@@ -8,10 +8,11 @@ using Aws.Common.Extensions;
 using Aws.Common.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NUnit.Framework;
 using System.Data;
 using System.Net;
 
-namespace AWs.S3.Task5.Tests;
+namespace AWs.Task5.S3.Tests;
 
 public class S3DeploymentValidationTests
 {
@@ -58,7 +59,7 @@ public class S3DeploymentValidationTests
         var cloudxBuckets = listBucketsResponse.Buckets.Where(b => b.BucketName.Contains("cloudx"));
 
         cloudxBuckets.Should().NotBeEmpty();
-        
+
         var s3BucketArns = cloudxBuckets.Select(b => $"arn:aws:s3:::{b.BucketName}");
         InstanceProfile instanceProfile = await GetEc2InstanceProfileByTag("cloudx");
         List<PolicyVersionModel> policyDocuments = await iamClient.GetPolicyDocumentsByIamRoleAsync(instanceProfile.Roles.Single().RoleName);
@@ -111,7 +112,7 @@ public class S3DeploymentValidationTests
             getBucketVersioningResponse.VersioningConfig.Status.Should().Be(VersionStatus.Off);
             // Check public access is disabled
             getPublicAccessBlockResponse.PublicAccessBlockConfiguration.RestrictPublicBuckets.Should().BeTrue();
-            getPublicAccessBlockResponse.PublicAccessBlockConfiguration.IgnorePublicAcls.Should().BeTrue(); 
+            getPublicAccessBlockResponse.PublicAccessBlockConfiguration.IgnorePublicAcls.Should().BeTrue();
         }
     }
 

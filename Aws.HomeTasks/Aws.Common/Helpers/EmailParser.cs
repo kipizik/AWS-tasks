@@ -43,7 +43,7 @@ public static class EmailParser
                     break;
 
                 case "last_modified":
-                    eventObject.LastModified = DateTime.Parse(value);
+                    eventObject.LastModified = value;
                     break;
 
                 case "object_size":

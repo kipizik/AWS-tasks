@@ -1,21 +1,15 @@
-using Amazon.EC2;
-using Amazon.EC2.Model;
 using Amazon.SimpleNotificationService;
 using Amazon.SimpleNotificationService.Model;
 using Aws.Common.Clients;
 using Aws.Common.Helpers;
-using Aws.Common.Models;
 using Aws.Common.Models.API;
-using Aws.Common.Models.EmailService;
 using FluentAssertions;
 using FluentAssertions.Execution;
-using HtmlAgilityPack;
-using Newtonsoft.Json;
-using System;
+using NUnit.Framework;
 using System.Net;
 using System.Web;
 
-namespace Aws.Sns.Task7.Tests.Tests;
+namespace Aws.Task7.Sns.Tests.Tests;
 
 public class SnsFunctionalTests
 {
@@ -29,7 +23,7 @@ public class SnsFunctionalTests
     [SetUp]
     public async Task BeforeTest()
     {
-        string address = await GetEc2PublicAddress();
+        string address = await Ec2Helper.GetEc2PublicAddressAsync();
         _notificationApiClient = new NotificationClient(address);
         _emailServiceClient = new EmailServiceClient();
         _imageClient = new ImageClient(address);
@@ -37,11 +31,12 @@ public class SnsFunctionalTests
         _snsClient = new AmazonSimpleNotificationServiceClient();
         _userEmail = await _emailServiceClient.GenerateRandomEmailAsync();
 
-        var topicNamePrefix = "cloudximage";
+        var topicNamePrefixes = new[] { "cloudximage", "cloudxserverless" };
         var listTopicsResponse = await _snsClient.ListTopicsAsync();
-        _snsTopic = listTopicsResponse.Topics.SingleOrDefault(t => t.TopicArn.Split(':').Last().StartsWith(topicNamePrefix));
+        _snsTopic = listTopicsResponse.Topics
+            .SingleOrDefault(t => topicNamePrefixes.Any(prefix => t.TopicArn.Split(':').Last().StartsWith(prefix)));
 
-        _snsTopic.Should().NotBeNull($"Topic starting with {topicNamePrefix} not found.");
+        _snsTopic.Should().NotBeNull($"Topic starting with any of the following prefixes {string.Join(',', topicNamePrefixes)} not found.");
     }
 
     [TearDown]
@@ -107,7 +102,7 @@ public class SnsFunctionalTests
         // delete an image
         var deleteImageMessage = await _imageClient.DeleteImageAsync(imageId);
 
-        await WaitForMessagesAsync(_userEmail, 2);
+        await WaitForMessagesAsync(_userEmail, 3);
         var receivedEmailMessages = await _emailServiceClient.GetMessagesAsync(_userEmail);
         var notificationMessageIds = receivedEmailMessages
             .Where(message => message.Subject == "AWS Notification Message")
@@ -144,7 +139,7 @@ public class SnsFunctionalTests
         var fileName = expectedImages.Select(image => Path.GetFileName(image)).FirstOrDefault();
         var imageId = await _imageClient.UploadImageAsync(fileName);
 
-        await WaitForMessagesAsync(_userEmail);
+        await WaitForMessagesAsync(_userEmail, 2);
         var receivedEmailMessages = await _emailServiceClient.GetMessagesAsync(_userEmail);
         var notificationMessageIds = receivedEmailMessages
             .Where(message => message.Subject == "AWS Notification Message")
@@ -268,25 +263,6 @@ public class SnsFunctionalTests
         var confirmationUrl = EmailParser.ExtractConfirmationURL(confirmationMessage);
         var token = HttpUtility.ParseQueryString(new Uri(confirmationUrl).Query).Get("Token");
         var response = await _snsClient.ConfirmSubscriptionAsync(topicArn, token);
-    }
-
-    private static async Task<string> GetEc2PublicAddress()
-    {
-        var ec2Client = new AmazonEC2Client();
-        var describeInstancesResponse = await ec2Client.DescribeInstancesAsync(
-            new DescribeInstancesRequest
-            {
-                Filters = new List<Amazon.EC2.Model.Filter>
-                {
-                    new()
-                    {
-                        Name = "tag-key",
-                        Values = new List<string> { "cloudx" }
-                    }
-                }
-            });
-        var instance = describeInstancesResponse.Reservations.SelectMany(r => r.Instances).First(i => i.State.Name == InstanceStateName.Running);
-        return instance.PublicIpAddress;
     }
 
     private async Task DeleteSubscriptionAsync(string subscriptionArn)

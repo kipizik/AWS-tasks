@@ -7,11 +7,11 @@ public class NotificationClient
 {
     private readonly HttpClient httpClient;
 
-    public NotificationClient(string baseAddress)
+    public NotificationClient(string hostName)
     {
         httpClient = new HttpClient
         {
-            BaseAddress = new Uri($"http://{baseAddress}/api/")
+            BaseAddress = new Uri($"http://{hostName}/api/")
         };
         httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }

@@ -3,19 +3,21 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Iam.Task2.Tests", "Aws.Iam.Task2.Tests\Aws.Iam.Task2.Tests.csproj", "{F3757442-B833-4B69-8A04-8AB0F58C521D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Task2.Iam.Tests", "Aws.Iam.Task2.Tests\Aws.Task2.Iam.Tests.csproj", "{F3757442-B833-4B69-8A04-8AB0F58C521D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Common", "Aws.Common\Aws.Common.csproj", "{F597B361-E543-4C01-8FEB-FE049AD908B1}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Ec2.Task3.Tests", "Aws.Ec2.Task3.Tests\Aws.Ec2.Task3.Tests.csproj", "{A5F2378E-3CE9-4598-8E73-5BB576A011B7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Task3.Ec2.Tests", "Aws.Ec2.Task3.Tests\Aws.Task3.Ec2.Tests.csproj", "{A5F2378E-3CE9-4598-8E73-5BB576A011B7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Vpc.Task4.Tests", "Aws.Vpc.Task4.Tests\Aws.Vpc.Task4.Tests.csproj", "{1EFEBE61-C3B5-4B5D-A02A-97E5B17CE18A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Task4.Vpc.Tests", "Aws.Vpc.Task4.Tests\Aws.Task4.Vpc.Tests.csproj", "{1EFEBE61-C3B5-4B5D-A02A-97E5B17CE18A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWs.S3.Task5.Tests", "AWs.S3.Task5.Tests\AWs.S3.Task5.Tests.csproj", "{09B3F395-74C9-46DD-B45D-C2B13B9354DF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AWs.Task5.S3.Tests", "AWs.S3.Task5.Tests\AWs.Task5.S3.Tests.csproj", "{09B3F395-74C9-46DD-B45D-C2B13B9354DF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Rds.Task6.Tests", "Aws.Rds.Task6.Tests\Aws.Rds.Task6.Tests.csproj", "{115311E7-523C-4D3D-867F-BB78DFB70417}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Task6.Rds.Tests", "Aws.Rds.Task6.Tests\Aws.Task6.Rds.Tests.csproj", "{115311E7-523C-4D3D-867F-BB78DFB70417}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aws.Sns.Task7.Tests", "Aws.Sns.Task7.Tests\Aws.Sns.Task7.Tests.csproj", "{8932FC1D-9920-4F5C-9F56-E487E14038EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Aws.Task7.Sns.Tests", "Aws.Sns.Task7.Tests\Aws.Task7.Sns.Tests.csproj", "{8932FC1D-9920-4F5C-9F56-E487E14038EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Aws.Task8.Serverless.Tests", "Aws.Serverless.Task8.Tests\Aws.Task8.Serverless.Tests.csproj", "{58918ACE-F24D-4719-98E9-32220CF655E4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8932FC1D-9920-4F5C-9F56-E487E14038EA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58918ACE-F24D-4719-98E9-32220CF655E4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58918ACE-F24D-4719-98E9-32220CF655E4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58918ACE-F24D-4719-98E9-32220CF655E4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58918ACE-F24D-4719-98E9-32220CF655E4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

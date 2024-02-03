@@ -2,9 +2,9 @@
 using Amazon.SecretsManager.Model;
 using Newtonsoft.Json;
 
-namespace Aws.Rds.Task6.Tests.Helpers;
+namespace Aws.Common.Helpers;
 
-internal static class AwsSsmHelper
+public static class AwsSsmHelper
 {
     public static async Task<Dictionary<string, string>> GetSecretAsync(string secretName)
     {

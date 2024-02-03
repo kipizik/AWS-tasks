@@ -9,9 +9,9 @@ using Aws.Common.Extensions;
 using Aws.Common.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NUnit.Framework;
 
-
-namespace Aws.Sns.Task7.Tests.Tests;
+namespace Aws.Task7.Sns.Tests.Tests;
 
 public class SnsDeploymentValidationTests
 {
@@ -74,13 +74,12 @@ public class SnsDeploymentValidationTests
     [Test]
     public async Task Validate_SNS_Topic_Requirements()
     {
+        var topicNamePrefix = "cloudximage-TopicSNSTopic";
         var listTopicResponse = await _snsClient.ListTopicsAsync();
-        var topicArn = listTopicResponse.Topics.SingleOrDefault(x => x.TopicArn.Contains("cloudximage-TopicSNSTopic"))!.TopicArn;
+        var topicArn = listTopicResponse.Topics.SingleOrDefault(x => x.TopicArn.Contains(topicNamePrefix))!.TopicArn;
 
         // Assert topic existence
-        topicArn.Should().NotBeNull("SNS Topic with name ending with 'cloudximage-TopicSNSTopic' should exist.");
-
-        // Assert topic type (SNS only has one type which is 'standard', so not required)
+        topicArn.Should().NotBeNull($"SNS Topic with name ending with '{topicNamePrefix}' should exist.");
 
         // Assert encryption (By default, SNS encryption is disabled)
         var topicAttributes = await _snsClient.GetTopicAttributesAsync(topicArn);
@@ -94,12 +93,13 @@ public class SnsDeploymentValidationTests
     [Test]
     public async Task Validate_SQS_Queue_Requirements()
     {
-        var listQueuesResponse = await _sqsClient.ListQueuesAsync("cloudximage-QueueSQSQueue");
-        listQueuesResponse.QueueUrls.Should().HaveCount(1, "SQS queue with name 'cloudximage-QueueSQSQueue' should exist");
+        var queueNamePrefix = "cloudximage-QueueSQSQueue";
+        var listQueuesResponse = await _sqsClient.ListQueuesAsync(queueNamePrefix);
+        listQueuesResponse.QueueUrls.Should().HaveCount(1, $"SQS queue with name '{queueNamePrefix}' should exist");
         var queueUrl = listQueuesResponse.QueueUrls.Single();
 
         // Assert queue existence
-        queueUrl.Should().NotBeNullOrEmpty("SQS queue containing 'cloudximage-QueueSQSQueue' should exist");
+        queueUrl.Should().NotBeNullOrEmpty($"SQS queue containing '{queueNamePrefix}' should exist");
 
         // Assert encryption
         var attributesResponse = await _sqsClient.GetQueueAttributesAsync(

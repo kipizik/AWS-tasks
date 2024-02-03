@@ -9,16 +9,16 @@ public class ImageClient
     private readonly HttpClient httpClient;
     public readonly string ImageDirectory = $"{Assembly.GetExecutingAssembly().Location}\\..\\Images";
 
-    public ImageClient(string baseAddress)
+    public ImageClient(string hostName)
     {
         httpClient = new HttpClient
         {
-            BaseAddress = new Uri($"http://{baseAddress}/api/")
+            BaseAddress = new Uri($"http://{hostName}/api/")
         };
         httpClient.DefaultRequestHeaders.Add("Accept", "application/json");
     }
 
-    public async Task<byte[]> DownloadImageAsync(int imageId)
+    public async Task<byte[]> DownloadImageAsync(string imageId)
     {
         return await httpClient.GetByteArrayAsync($"image/file/{imageId}");
     }
@@ -30,7 +30,7 @@ public class ImageClient
 
         return imagesMetadata!;
     }
-    public async Task<ImageModel> GetImageMetadataAsync(int imageId)
+    public async Task<ImageModel> GetImageMetadataAsync(string imageId)
     {
         var responseBody = await httpClient.GetStringAsync($"image/{imageId}");
         var imageMetadata = JsonConvert.DeserializeObject<ImageModel>(responseBody);
@@ -38,7 +38,7 @@ public class ImageClient
         return imageMetadata!;
     }
 
-    public async Task<int> UploadImageAsync(string fileName)
+    public async Task<string> UploadImageAsync(string fileName)
     {
         using var multipartFormDataContent = new MultipartFormDataContent();
         var imagePath = $"{ImageDirectory}\\{fileName}";
@@ -53,12 +53,12 @@ public class ImageClient
         response.EnsureSuccessStatusCode();
 
         var responseString = await response.Content.ReadAsStringAsync();
-        var responseData = JsonConvert.DeserializeAnonymousType(responseString, new { Id = 0 });
+        var responseData = JsonConvert.DeserializeAnonymousType(responseString, new { Id = string.Empty });
 
         return responseData!.Id;
     }
 
-    public async Task<string> DeleteImageAsync(int imageId)
+    public async Task<string> DeleteImageAsync(string imageId)
     {
         var response = await httpClient.DeleteAsync($"image/{imageId}");
         response.EnsureSuccessStatusCode();

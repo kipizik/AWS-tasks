@@ -5,7 +5,7 @@ namespace Aws.Common.Models.API;
 public class ImageModel
 {
     [JsonProperty("id")]
-    public long Id { get; set; }
+    public string Id { get; set; }
 
     [JsonProperty("last_modified")]
     public string LastModified { get; set; }
@@ -14,9 +14,12 @@ public class ImageModel
     public string ObjectKey { get; set; }
 
     [JsonProperty("object_size")]
-    public long ObjectSize { get; set; }
+    public string ObjectSize { get; set; }
 
     [JsonProperty("object_type")]
     public string ObjectType { get; set; }
+
+    [JsonProperty("created_at")]
+    public string CreatedAt { get; set; }
 }
 

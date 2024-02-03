@@ -4,18 +4,19 @@ using Amazon.S3;
 using Amazon.S3.Model;
 using Aws.Common.Clients;
 using FluentAssertions;
+using NUnit.Framework;
 using System.Reflection;
 
-namespace AWs.S3.Task5.Tests;
+namespace AWs.Task5.S3.Tests;
 
 [TestFixture]
 internal class S3FunctionalTests
 {
     private ImageClient imageApiClient;
     private AmazonS3Client s3Client;
-    private readonly List<int> uploadedImageIds = new();
+    private readonly List<string> uploadedImageIds = new();
     private readonly string imageDirectory = $"{Assembly.GetExecutingAssembly().Location}\\..\\Images";
-    private const string bucketNamePart = "cloudximage-imagestorebucket";
+    private readonly string[] bucketNameParts = new[] { "cloudximage-imagestorebucket", "cloudxserverless-imagestorebucket" };
 
     /*
 - Download images from the S3 bucket
@@ -61,10 +62,11 @@ internal class S3FunctionalTests
         const string fileName = "arsenal_fc.jpg";
         // Act
         var imageId = await imageApiClient.UploadImageAsync(fileName);
-        imageId.Should().BeGreaterThan(0);
+        imageId.Should().NotBeNullOrEmpty();
 
         uploadedImageIds.Add(imageId);
 
+        // TODO: use image id or full path to check for presence
         // Assert
         // verify that image is stored in S3 bucket
         string s3BucketName = await GetFullBucketName();
@@ -85,6 +87,7 @@ internal class S3FunctionalTests
 
         var imagesUploaded = await imageApiClient.GetAllImagesMetadataAsync();
 
+        // TODO: use image id or full path to check for presence
         imagesUploaded.Should().HaveCount(expectedImages.Count());
         foreach (var fileName in fileNames)
         {
@@ -102,6 +105,8 @@ internal class S3FunctionalTests
         var responseContent = await imageApiClient.DeleteImageAsync(imageId);
         responseContent.Trim().Should().Be("\"Image is deleted\"");
 
+
+        // TODO: use image id or full path to check for presence
         // Assert
         // verify that image is not stored in S3 bucket
         string s3BucketName = await GetFullBucketName();
@@ -127,7 +132,7 @@ internal class S3FunctionalTests
     private async Task<string> GetFullBucketName()
     {
         var listBucketsResponse = await s3Client.ListBucketsAsync();
-        var s3Bucket = listBucketsResponse.Buckets.Single(b => b.BucketName.Contains(bucketNamePart));
+        var s3Bucket = listBucketsResponse.Buckets.Single(b => bucketNameParts.Any(x => b.BucketName.Contains(x)));
         return s3Bucket.BucketName;
     }
 

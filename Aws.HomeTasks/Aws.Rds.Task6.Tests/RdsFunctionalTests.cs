@@ -1,22 +1,21 @@
 ﻿using Amazon.EC2;
 using Amazon.EC2.Model;
+using Aws.Common.Clients;
+using Aws.Common.Helpers;
 using Aws.Common.Models;
 using Aws.Common.Models.API;
-using Aws.Rds.Task6.Tests.Helpers;
 using FluentAssertions;
-using Newtonsoft.Json;
-using System.Net;
+using NUnit.Framework;
 using System.Reflection;
 
-namespace Aws.Rds.Task6.Tests;
+namespace Aws.Task6.Rds.Tests;
 
 [TestFixture]
 internal class RdsFunctionalTests
 {
     private Instance ec2Instance;
-    private string apiBaseAddress;
-    private HttpClient imageApiClient;
-    private readonly List<int> uploadedImageIds = new();
+    private ImageClient imageApiClient;
+    private readonly List<string> uploadedImageIds = new();
     private readonly string imageDirectory = $"{Assembly.GetExecutingAssembly().Location}\\..\\Images";
 
     [SetUp]
@@ -36,13 +35,8 @@ internal class RdsFunctionalTests
                 }
             });
         ec2Instance = describeInstancesResponse.Reservations.Single().Instances.Single();
-        apiBaseAddress = $"http://{ec2Instance.PublicDnsName}/api";
 
-        imageApiClient = new HttpClient
-        {
-            BaseAddress = new Uri(apiBaseAddress)
-        };
-        imageApiClient.DefaultRequestHeaders.Add("Accept", "application/json");
+        imageApiClient = new ImageClient(ec2Instance.PublicDnsName);
     }
 
     [TearDown]
@@ -52,7 +46,7 @@ internal class RdsFunctionalTests
         {
             foreach (var imageId in uploadedImageIds)
             {
-                await imageApiClient.DeleteAsync($"{apiBaseAddress}/image/{imageId}");
+                await imageApiClient.DeleteImageAsync(imageId);
             }
         }
     }
@@ -62,22 +56,22 @@ internal class RdsFunctionalTests
     {
         const string fileName = "arsenal_fc.jpg";
         // Act
-        var imageId = await UploadFileAsync(fileName);
-        imageId.Should().BeGreaterThan(0);
+        var imageId = await imageApiClient.UploadImageAsync(fileName);
+        imageId.Should().NotBeNullOrEmpty();
 
         uploadedImageIds.Add(imageId);
 
-        var getImageMetadataResponse = await imageApiClient.GetAsync($"{apiBaseAddress}/image/{imageId}");
-        var responseString = await getImageMetadataResponse.Content.ReadAsStringAsync();
-        var uploadedImage = JsonConvert.DeserializeObject<ImageModel>(responseString);
+        var uploadedImage = await imageApiClient.GetImageMetadataAsync(imageId);
+        uploadedImage.ObjectSize = uploadedImage.ObjectSize.Replace(".0", string.Empty);
+        uploadedImage.CreatedAt = uploadedImage.CreatedAt.Replace(".0", string.Empty);
 
         // Assert
         // verify that image stored in database is the same as returned by API
-        var dbImages = await GetDataFromDb();
-        var dbImageData = dbImages.FirstOrDefault(x => x.Any(kvp => kvp.Key == "id" && kvp.Value.ToString() == imageId.ToString()));
+        var dbImages = await GetDataFromDb(DbType.NoSQL);
+        var dbImageData = dbImages.FirstOrDefault(x => x.Any(kvp => kvp.Key == "id" && kvp.Value == imageId));
         dbImageData.Should().NotBeNull();
         ImageModel dbImage = MapToImageModel(dbImageData);
-        uploadedImage.Should().BeEquivalentTo(dbImage);
+        uploadedImage.Should().BeEquivalentTo(dbImage, opt => opt.Excluding(x => x.LastModified));
     }
 
     [Test]
@@ -85,64 +79,38 @@ internal class RdsFunctionalTests
     {
         var expectedImage = Directory.EnumerateFiles(imageDirectory).First();
         var fileName = Path.GetFileName(expectedImage);
-        var imageId = await UploadFileAsync(fileName);
+        var imageId = await imageApiClient.UploadImageAsync(fileName);
 
-        var deleteImageResponse = await imageApiClient.DeleteAsync($"{apiBaseAddress}/image/{imageId}");
-        deleteImageResponse.StatusCode.Should().Be(HttpStatusCode.OK);
-        var responseString = await deleteImageResponse.Content.ReadAsStringAsync();
-        responseString.Trim().Should().Be("\"Image is deleted\"");
+        var deleteImageResponse = await imageApiClient.DeleteImageAsync(imageId);
+        deleteImageResponse.Trim().Should().Be("\"Image is deleted\"");
 
         // Assert
         // verify that image is not stored in Db
-        var dbImages = await GetDataFromDb();
-        var dbImageData = dbImages.FirstOrDefault(x => x.Any(kvp => kvp.Key == "id" && kvp.Value.ToString() == imageId.ToString()));
+        var dbImages = await GetDataFromDb(DbType.NoSQL);
+        var dbImageData = dbImages.FirstOrDefault(x => x.Any(kvp => kvp.Key == "id" && kvp.Value == imageId));
         dbImageData.Should().BeNull("Image should not be present in DB after deletion.");
     }
 
-    private async Task<int> UploadFileAsync(string fileName)
+    private async Task<List<Dictionary<string, string>>> GetDataFromDb(DbType dbType)
     {
-        using var multipartFormDataContent = new MultipartFormDataContent();
-        var imagePath = $"{imageDirectory}\\{fileName}";
-        if (!File.Exists(imagePath))
+        return dbType switch
         {
-            throw new FileNotFoundException();
-        }
-
-        byte[] imageBytes = File.ReadAllBytes(imagePath);
-        multipartFormDataContent.Add(new ByteArrayContent(imageBytes), "upfile", fileName);
-        var response = await imageApiClient.PostAsync($"{apiBaseAddress}/image", multipartFormDataContent);
-
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-        var responseString = await response.Content.ReadAsStringAsync();
-        var responseData = JsonConvert.DeserializeAnonymousType(responseString, new { Id = 0 });
-
-        return responseData!.Id;
-    }
-
-    private async Task<List<IDictionary<string, object>>> GetDataFromDb()
-    {
-        var secretValues = await AwsSsmHelper.GetSecretAsync("DatabaseDBSecret");
-        var dbConnectionInfo = new DbConnectionInfo
-        {
-            DbName = secretValues["dbname"],
-            Password = secretValues["password"],
-            UserName = secretValues["username"],
-            Port = uint.Parse(secretValues["port"]),
-            Server = secretValues["host"]
+            DbType.SQL => await DbHelper.GetDataFromSqlDbAsync(ec2Instance.PublicDnsName),
+            DbType.NoSQL => await DbHelper.GetDataFromNoSqlDbAsync(),
+            _ => throw new Exception("DB type is not supported"),
         };
-        return await DbHelper.GetDataFromDbAsync(ec2Instance.PublicDnsName, "ec2-user", dbConnectionInfo, "images");
     }
 
-    private static ImageModel MapToImageModel(IDictionary<string, object>? dbImageData)
+    private static ImageModel MapToImageModel(Dictionary<string, string>? dbImageData)
     {
-        var lastModified = DateTime.Parse(dbImageData["last_modified"].ToString()).ToString("yyyy-MM-ddTHH:mm:ssZ");
         return new ImageModel
         {
-            Id = long.Parse(dbImageData!["id"].ToString()!),
-            LastModified = lastModified,
-            ObjectKey = dbImageData["object_key"].ToString()!,
-            ObjectSize = long.Parse(dbImageData["object_size"].ToString()!),
-            ObjectType = dbImageData["object_type"].ToString()!
+            Id = dbImageData!["id"],
+            LastModified = dbImageData["last_modified"],
+            ObjectKey = dbImageData["object_key"],
+            ObjectSize = dbImageData["object_size"],
+            ObjectType = dbImageData["object_type"],
+            CreatedAt = dbImageData["created_at"]
         };
     }
 }

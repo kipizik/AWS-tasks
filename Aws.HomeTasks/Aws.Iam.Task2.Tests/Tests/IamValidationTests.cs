@@ -4,8 +4,9 @@ using Aws.Common.Helpers;
 using Aws.Common.Models;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NUnit.Framework;
 
-namespace Aws.Iam.Task2.Tests.Tests;
+namespace Aws.Task2.Iam.Tests.Tests;
 
 public class IamValidationTests
 {

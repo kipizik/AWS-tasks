@@ -4,8 +4,9 @@ using Amazon.RDS;
 using Amazon.RDS.Model;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NUnit.Framework;
 
-namespace Aws.Rds.Task6.Tests;
+namespace Aws.Task6.Rds.Tests;
 
 [TestFixture]
 internal class RdsDeploymentValidationTests

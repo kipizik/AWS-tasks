@@ -4,8 +4,9 @@ using Aws.Common.Helpers;
 using FluentAssertions;
 using FluentAssertions.Execution;
 using Newtonsoft.Json;
+using NUnit.Framework;
 
-namespace Aws.Ec2.Task3.Tests;
+namespace Aws.Task3.Ec2.Tests;
 
 public class Tests
 {
@@ -37,7 +38,7 @@ public class Tests
         };
         var describeInstanceTypesResponse = await ec2Client.DescribeInstancesAsync(describeInstancesRequest);
         IEnumerable<Instance> ec2Instances = describeInstanceTypesResponse.Reservations.SelectMany(r => r.Instances);
-        
+
         // Assert
         using (new AssertionScope())
         {

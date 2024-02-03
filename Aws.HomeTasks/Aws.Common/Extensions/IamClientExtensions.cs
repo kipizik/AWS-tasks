@@ -19,7 +19,7 @@ public static class IamClientExtensions
     {
         var listRolePoliciesResponse = await iamClient.ListAttachedRolePoliciesAsync(new ListAttachedRolePoliciesRequest
         {
-            RoleName = roleName
+            RoleName = roleName,
         });
         var policyDocuments = new List<PolicyVersionModel>();
         foreach (var policy in listRolePoliciesResponse.AttachedPolicies)

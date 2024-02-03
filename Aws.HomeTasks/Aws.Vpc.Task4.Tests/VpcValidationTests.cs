@@ -3,8 +3,9 @@ using Amazon.EC2.Model;
 using Aws.Common.Helpers;
 using FluentAssertions;
 using FluentAssertions.Execution;
+using NUnit.Framework;
 
-namespace Aws.Vpc.Task4.Tests;
+namespace Aws.Task4.Vpc.Tests;
 
 public class VpcValidationTests
 {
