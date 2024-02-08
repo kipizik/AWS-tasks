@@ -74,11 +74,8 @@ public class SnsFunctionalTests
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
         // verify that email is received
-        await Waiter.WaitForAsync(
-            async () => (await _emailServiceClient.GetMessagesAsync(_userEmail)).Any(),
-            retryDelay: TimeSpan.FromSeconds(1),
-            timeout: TimeSpan.FromSeconds(15));
-        var messages = await _emailServiceClient.GetMessagesAsync(_userEmail);
+        await EmailServiceHelper.WaitForMessagesAsync(_userEmail);
+                var messages = await _emailServiceClient.GetMessagesAsync(_userEmail);
         var confirmationMessage = messages.FirstOrDefault(m => m.Subject == "AWS Notification - Subscription Confirmation");
 
         confirmationMessage.Should().NotBeNull($"Confirmation email was not received for email address {_userEmail}.");
@@ -92,7 +89,7 @@ public class SnsFunctionalTests
         var createResponse = await _notificationApiClient.CreateSubscriptionAsync(_userEmail);
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        await ConfirmSubscriptionAsync(_userEmail, _snsTopic.TopicArn);
+        await EmailServiceHelper.ConfirmSnsSubscriptionAsync(_userEmail, _snsTopic.TopicArn, _snsClient);
 
         // Act
         // upload an image
@@ -102,7 +99,7 @@ public class SnsFunctionalTests
         // delete an image
         var deleteImageMessage = await _imageClient.DeleteImageAsync(imageId);
 
-        await WaitForMessagesAsync(_userEmail, 3);
+        await EmailServiceHelper.WaitForMessagesAsync(_userEmail, 3);
         var receivedEmailMessages = await _emailServiceClient.GetMessagesAsync(_userEmail);
         var notificationMessageIds = receivedEmailMessages
             .Where(message => message.Subject == "AWS Notification Message")
@@ -131,7 +128,7 @@ public class SnsFunctionalTests
         var createResponse = await _notificationApiClient.CreateSubscriptionAsync(_userEmail);
         createResponse.StatusCode.Should().Be(HttpStatusCode.OK);
 
-        await ConfirmSubscriptionAsync(_userEmail, _snsTopic.TopicArn);
+        await EmailServiceHelper.ConfirmSnsSubscriptionAsync(_userEmail, _snsTopic.TopicArn, _snsClient);
 
         // Act
         // upload an image
@@ -139,7 +136,7 @@ public class SnsFunctionalTests
         var fileName = expectedImages.Select(image => Path.GetFileName(image)).FirstOrDefault();
         var imageId = await _imageClient.UploadImageAsync(fileName);
 
-        await WaitForMessagesAsync(_userEmail, 2);
+        await EmailServiceHelper.WaitForMessagesAsync(_userEmail, 2);
         var receivedEmailMessages = await _emailServiceClient.GetMessagesAsync(_userEmail);
         var notificationMessageIds = receivedEmailMessages
             .Where(message => message.Subject == "AWS Notification Message")
@@ -173,7 +170,7 @@ public class SnsFunctionalTests
         var subscribeResponse = await _snsClient.SubscribeAsync(subscribeRequest);
         subscribeResponse.HttpStatusCode.Should().Be(HttpStatusCode.OK, $"Failed to subscribe {_userEmail} to topic {_snsTopic.TopicArn}");
 
-        await ConfirmSubscriptionAsync(_userEmail, _snsTopic.TopicArn);
+        await EmailServiceHelper.ConfirmSnsSubscriptionAsync(_userEmail, _snsTopic.TopicArn, _snsClient);
 
         // Act
         var deleteSubscriptionResponse = await _notificationApiClient.DeleteSubscriptionAsync(_userEmail);
@@ -201,7 +198,7 @@ public class SnsFunctionalTests
         var subscribeResponse = await _snsClient.SubscribeAsync(subscribeRequest);
         subscribeResponse.HttpStatusCode.Should().Be(HttpStatusCode.OK, $"Failed to subscribe {_userEmail} to topic {_snsTopic.TopicArn}");
 
-        await ConfirmSubscriptionAsync(_userEmail, _snsTopic.TopicArn);
+        await EmailServiceHelper.ConfirmSnsSubscriptionAsync(_userEmail, _snsTopic.TopicArn, _snsClient);
 
         // Act
         // Unsubscribe
@@ -214,7 +211,7 @@ public class SnsFunctionalTests
         var imageId = await _imageClient.UploadImageAsync(fileName);
 
         // Assert
-        await WaitForMessagesAsync(_userEmail);
+        await EmailServiceHelper.WaitForMessagesAsync(_userEmail);
         var receivedEmailMessages = await _emailServiceClient.GetMessagesAsync(_userEmail);
         var notificationMessages = receivedEmailMessages
             .Where(message => message.Subject == "AWS Notification Message");
@@ -255,16 +252,6 @@ public class SnsFunctionalTests
         apiSubscriptions.Should().BeEquivalentTo(snsSubscriptions);
     }
 
-    private async Task ConfirmSubscriptionAsync(string emailAddress, string topicArn)
-    {
-        await WaitForMessagesAsync(emailAddress);
-        var messages = await _emailServiceClient.GetMessagesAsync(emailAddress);
-        var confirmationMessage = await _emailServiceClient.GetSingleMessageAsync(emailAddress, messages.FirstOrDefault().Id);
-        var confirmationUrl = EmailParser.ExtractConfirmationURL(confirmationMessage);
-        var token = HttpUtility.ParseQueryString(new Uri(confirmationUrl).Query).Get("Token");
-        var response = await _snsClient.ConfirmSubscriptionAsync(topicArn, token);
-    }
-
     private async Task DeleteSubscriptionAsync(string subscriptionArn)
     {
         using var client = new AmazonSimpleNotificationServiceClient();
@@ -279,13 +266,5 @@ public class SnsFunctionalTests
         {
             Console.WriteLine($"Successfully deleted subscription {subscriptionArn}");
         }
-    }
-
-    private async Task WaitForMessagesAsync(string emailAddress, int messageCount = 1)
-    {
-        await Waiter.WaitForAsync(
-            async () => (await _emailServiceClient.GetMessagesAsync(emailAddress)).Length >= messageCount,
-            retryDelay: TimeSpan.FromSeconds(1),
-            timeout: TimeSpan.FromSeconds(15));
     }
 }
